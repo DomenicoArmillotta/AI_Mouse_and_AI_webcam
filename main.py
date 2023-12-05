@@ -83,9 +83,10 @@ def main_webcam():
 
     while True:
         success, image = cap.read()
-        # image = detector.find_faces_original(image)
+        #image = detector.find_faces_original(image)
         # image = detector.find_faces_black(image)
-        image = detector.find_faces_segmented(image)
+        # image = detector.find_faces_segmented(image)
+        image = detector.find_faces_clown(image)
         cv2.imshow("Video", image)
         image.flags.writeable = False
         if cv2.waitKey(1) & 0xFF == ord('s'):  # Se il tasto 's' viene premuto
