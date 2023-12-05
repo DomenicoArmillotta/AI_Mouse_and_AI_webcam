@@ -2,6 +2,9 @@ import cv2
 from EyeTracker import EyeTracker
 from handTracker import handTracker
 from Tracker import Tracker
+from CameraMove import CameraMove
+
+
 def main_eye():
     cap = cv2.VideoCapture(0)
     eye_tracker = EyeTracker()
@@ -74,13 +77,29 @@ def main():
     tracker.plot_data()
     tracker.plot_ear()
 
+def main_webcam():
+    cap = cv2.VideoCapture(0)
+    detector = CameraMove()
 
+    while True:
+        success, image = cap.read()
+        # image = detector.find_faces_original(image)
+        # image = detector.find_faces_black(image)
+        image = detector.find_faces_segmented(image)
+        cv2.imshow("Video", image)
+        image.flags.writeable = False
+        if cv2.waitKey(1) & 0xFF == ord('s'):  # Se il tasto 's' viene premuto
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     # uncomment the favourite main
     # hand tracking + eye blink tracking
-    main()
+    # main()
     # only eye tracking with plot
     #main_eye()
     # only hand tracking with angle detection enabled
     # main_finger()
+    main_webcam()
