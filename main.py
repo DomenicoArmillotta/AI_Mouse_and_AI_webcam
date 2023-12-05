@@ -1,9 +1,4 @@
 import cv2
-import mediapipe as mp
-import math
-import pandas as pd
-import matplotlib.pyplot as plt
-from datetime import datetime
 from EyeTracker import EyeTracker
 from handTracker import handTracker
 from Tracker import Tracker
@@ -26,11 +21,11 @@ def main_eye():
                 eye_tracker.update_dataframe(ear_left, ear_right)
 
         cv2.imshow("Video", image)
-        if cv2.waitKey(1) & 0xFF == ord('s'):  # Se il tasto 's' viene premuto
-            break  # Interrompe il ciclo while
+        if cv2.waitKey(1) & 0xFF == ord('s'):  # Press 'S' key to stop
+            break
 
-    cap.release()  # Rilascia l'oggetto di acquisizione video
-    cv2.destroyAllWindows()  # Chiude tutte le finestre create da OpenCV
+    cap.release()
+    cv2.destroyAllWindows()
     eye_tracker.plot_ear()
 
 
@@ -55,8 +50,8 @@ def main_finger():
         if cv2.waitKey(1) & 0xFF == ord('s'):  # Se il tasto 's' viene premuto
             break  # Interrompe il ciclo while
 
-    cap.release()  # Rilascia l'oggetto di acquisizione video
-    cv2.destroyAllWindows()  # Chiude tutte le finestre create da OpenCV
+    cap.release()
+    cv2.destroyAllWindows()
     print(tracker.data)
     tracker.plot_data()
     # plotted only the smoothed data
@@ -71,10 +66,10 @@ def main():
         tracker.positionFinderMouseClickWithFace(image)
         cv2.imshow("Video", image)
         image.flags.writeable = False
-        if cv2.waitKey(1) & 0xFF == ord('s'):  # Se il tasto 's' viene premuto
-            break  # Interrompe il ciclo while
-    cap.release()  # Rilascia l'oggetto di acquisizione video
-    cv2.destroyAllWindows()  # Chiude tutte le finestre create da OpenCV
+        if cv2.waitKey(1) & 0xFF == ord('s'):  # stop webcam acquisition with 'S' key
+            break
+    cap.release()
+    cv2.destroyAllWindows()
     print(tracker.df)
     tracker.plot_data()
     tracker.plot_ear()
@@ -82,4 +77,10 @@ def main():
 
 
 if __name__ == "__main__":
+    # uncomment the favourite main
+    # hand tracking + eye blink tracking
     main()
+    # only eye tracking with plot
+    #main_eye()
+    # only hand tracking with angle detection enabled
+    # main_finger()

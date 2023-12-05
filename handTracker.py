@@ -10,8 +10,8 @@ pyautogui.FAILSAFE = False
 
 class handTracker():
     def __init__(self, mode=False, maxHands=2, detectionCon=0.5, modelComplexity=1, trackCon=0.5):
-        self.mode = mode  # to sei the input asvideo stream
-        self.maxHands = maxHands  # setted as 2 hand
+        self.mode = mode  # to set the input as video stream
+        self.maxHands = maxHands
         self.detectionCon = detectionCon
         self.modelComplex = modelComplexity
         self.trackCon = trackCon
@@ -19,7 +19,7 @@ class handTracker():
         self.hands = self.mpHands.Hands(self.mode, self.maxHands, self.modelComplex,
                                         self.detectionCon, self.trackCon)
         self.mpDraw = mp.solutions.drawing_utils
-        self.previous_positions = []  # Aggiungi questa linea per memorizzare le posizioni precedenti
+        self.previous_positions = []  # previous position track
         self.data = pd.DataFrame(columns=['timestamp', 'angle_x', 'angle_y', 'centroid_x', 'centroid_y'])
 
     def handsFinder(self, image, draw=True):
@@ -34,19 +34,18 @@ class handTracker():
         return image
 
     def calculate_rotation_angle_x(self, landmarks):
-        # Verifica se i landmark necessari sono disponibili
+        # verify if there are sufficent number of keypoint
         if len(landmarks) < 18:
             return None
 
-        # Calcola i vettori tra i landmark per l'asse X
+        # vector for axes X
         vector_1_x = [landmarks[5].x - landmarks[0].x, landmarks[5].y - landmarks[0].y]
         vector_2_x = [landmarks[17].x - landmarks[0].x, landmarks[17].y - landmarks[0].y]
 
-        # Calcola l'angolo tra i vettori per l'asse X
         angle_rad_x = math.atan2(vector_2_x[1], vector_2_x[0]) - math.atan2(vector_1_x[1], vector_1_x[0])
         angle_deg_x = math.degrees(angle_rad_x)
 
-        # Normalizza l'angolo nell'intervallo [0, 360] per l'asse X
+        # normalize angle [0, 360] for X
         if angle_deg_x < 0:
             angle_deg_x += 360
 
