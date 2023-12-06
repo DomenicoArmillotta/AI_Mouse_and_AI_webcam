@@ -1,5 +1,3 @@
-# MouseController_eyeTracking_fingerTracking
-
 
 # First Part : Mouse control with eyes and fingers
 All these implementations have been carried out utilizing the Mediapipe library. The ultimate objective is to control the mouse by using the index finger to manipulate the cursor and perform clicks based on eye blinks.
