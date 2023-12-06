@@ -19,6 +19,12 @@ It does not work perfectly when wearing glasses due to reflections. Additionally
 
 ![EAR blink detection](img/ear2.png)
 
+![Blink detection TEST](img/eye1.png)
+
+![Blink detection plot for each eye](img/eyeplot.png)
+
+
+
 
 
 ## Merging
