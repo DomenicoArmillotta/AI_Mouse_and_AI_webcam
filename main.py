@@ -85,8 +85,8 @@ def main_webcam():
         success, image = cap.read()
         #image = detector.find_faces_original(image)
         # image = detector.find_faces_black(image)
-        # image = detector.find_faces_segmented(image)
-        image = detector.find_faces_clown(image)
+        image = detector.find_faces_segmented(image)
+        # image = detector.find_faces_clown(image)
         cv2.imshow("Video", image)
         image.flags.writeable = False
         if cv2.waitKey(1) & 0xFF == ord('s'):
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     # hand tracking + eye blink tracking
     # main()
     # only eye tracking with plot
-    #main_eye()
+    # main_eye()
     # only hand tracking with angle detection enabled
     # main_finger()
     main_webcam()
