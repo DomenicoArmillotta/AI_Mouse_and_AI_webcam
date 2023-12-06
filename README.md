@@ -7,6 +7,10 @@ The finger detection has been completed and is sufficiently accurate in landmark
 
 All the data is saved in a dataframe, which will be used for plotting the temporal evolution of the gathered information. An example of hand detection and the generated plots can be seen in the figure.
 
+![hand detection](img/hand.png)
+![hand plot movement](img/plothand.png)
+
+
 
 ## Eye Blink Detection
 For the eye blink detection, the Mediapipe library was employed. However, as there is no direct module for iris detection, a technique called Eye Aspect Ratio (EAR) was utilized. This method involves considering points around the eye and calculating the distance to determine whether the eyes are open or closed. The concept is illustrated in the figure with accompanying images.
