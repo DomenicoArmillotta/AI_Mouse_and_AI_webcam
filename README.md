@@ -40,11 +40,16 @@ Initially, face detection was experimented with using facial landmarks. In this 
 
 The face detection is highly robust, performing well even in the presence of glasses or reflections and in cases of partial or extreme facial angles. This robustness has facilitated the progression of other projects using this library. This experiment served the purpose of understanding the limits of detection and evaluating performance.
 
+![Clown detector ](img/clown.png)
+
 
 ## Dynamic webcam implementation
 In this phase, the goal was to create an intelligent webcam that tracked the person's face based on their movements. Since servo motors were not available, the decision was made to create a cropped region that followed the face and resized the cropped area to fit the window. 
 
 This approach gives the illusion that the camera is dynamically following the person, similar to the intelligent webcams seen in recent years.
+
+![AI webcam](img/locked.png)
+
 
 
 
