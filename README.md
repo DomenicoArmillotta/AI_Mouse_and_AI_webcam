@@ -13,6 +13,8 @@ For the eye blink detection, the Mediapipe library was employed. However, as the
 
 It does not work perfectly when wearing glasses due to reflections. Additionally, for increased robustness, the click action is triggered only when both eyes perform the blink simultaneously.
 
+![EAR blink detection](img/ear2.png)
+
 
 
 ## Merging
