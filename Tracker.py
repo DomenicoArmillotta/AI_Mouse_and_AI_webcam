@@ -12,7 +12,7 @@ pyautogui.FAILSAFE = False
 #in this implementation is disabled the computation referred to angle x and y of the hand to velocize the computation
 class Tracker() :
     def __init__(self, mode=False, maxHands=2, detectionCon=0.5, modelComplexity=1, trackCon=0.5):
-        self.mode = mode  # to sei the input asvideo stream
+        self.mode = mode  # to set the input asvideo stream
         self.maxHands = maxHands  # setted as 2 hand
         self.detectionCon = detectionCon
         self.modelComplex = modelComplexity
@@ -21,7 +21,7 @@ class Tracker() :
         self.hands = self.mpHands.Hands(self.mode, self.maxHands, self.modelComplex,
                                         self.detectionCon, self.trackCon)
         self.mpDraw = mp.solutions.drawing_utils
-        self.previous_positions = []  # Aggiungi questa linea per memorizzare le posizioni precedenti
+        self.previous_positions = []  # to draw a line with prev position
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_face_mesh = mp.solutions.face_mesh
         self.face_mesh = self.mp_face_mesh.FaceMesh()
@@ -62,9 +62,8 @@ class Tracker() :
         prev_centroid_y = 0
         centroid_x = 0  # Initialize outside the loop
         centroid_y = 0
-        prev_centroid_x, prev_centroid_y = 0, 0  # Coordinate precedenti dell'indice
+        prev_centroid_x, prev_centroid_y = 0, 0
         if self.results.multi_hand_landmarks:
-            # itero sulle mano rilevate
             for handNo, Hand in enumerate(self.results.multi_hand_landmarks):
                 sum_x = 0
                 sum_y = 0
@@ -78,7 +77,6 @@ class Tracker() :
                         cv2.circle(image, (cx, cy), 15, (255, 0, 255), cv2.FILLED)  # Pallino rosa sul indice
                         mouse_x, mouse_y = pyautogui.position()
 
-                        # Sposta il puntatore del mouse in base alla differenza calcolata
                         pyautogui.moveTo(1980 - cx * 3, cy * 2.20)
                 centroid_x = sum_x // len(Hand.landmark)
                 centroid_y = sum_y // len(Hand.landmark)
@@ -88,32 +86,27 @@ class Tracker() :
 
                 lmlist.append(['center', centroid_x, centroid_y])
 
-                # Aggiungi la posizione corrente alla lista delle posizioni precedenti
                 self.previous_positions.append((centroid_x, centroid_y))
 
-                # Limita la lunghezza della lista delle posizioni precedenti a 10
                 if len(self.previous_positions) > 10:
                     self.previous_positions.pop(0)
 
-                # Disegna una linea tra ogni coppia di posizioni consecutive
                 for i in range(len(self.previous_positions) - 1):
                     cv2.line(image, self.previous_positions[i], self.previous_positions[i + 1], (255, 0, 0), 2)
 
-
-                # Calcola la distanza tra le punte delle dita e il centro della mano
+                # compute the distance between the finger to understand if it is closed
                 distances = []
                 for item in lmlist:
-                    if len(item) == 3:  # Se l'elemento è una tripla
+                    if len(item) == 3:  # if the element is a triple , because is saved also the data referred to angles
                         id, cx, cy = item
-                        if id in [4, 12, 16, 20]:  # Punte delle dita
+                        if id in [4, 12, 16, 20]:  # specific finger
                             distance = ((cx - centroid_x) ** 2 + (cy - centroid_y) ** 2) ** 0.5
                             distances.append(distance)
 
-                # Soglia per determinare se una dita è chiusa o aperta
+                # threshold to determine if a hand is closed
                 threshold = 60
                 closed_fingers = [d > threshold for d in distances]
 
-                # Se tutte le dita tranne l'indice (il secondo elemento della lista) sono aperte
                 if all(closed for i, closed in enumerate(closed_fingers) if i == 1):
                     cv2.putText(image, 'OPEN', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                     #pyautogui.click()
@@ -128,7 +121,7 @@ class Tracker() :
                 ear_left = self.calculate_ear(face_landmarks, [362, 385, 387, 263, 373, 380])
                 ear_right = self.calculate_ear(face_landmarks, [33, 160, 158, 133, 153, 144])
 
-                # Aggiungi il tuo valore di soglia qui
+                # Threshold for eye blink detection
                 threshold = 0.33
                 if ear_left < threshold:
                     cv2.putText(image, 'Left', (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -150,7 +143,6 @@ class Tracker() :
     def plot_data(self):
         h = 480
         w = 640
-        # Dopo aver raccolto i dati, traccia i grafici
         plt.figure(figsize=(12, 8))
 
         plt.subplot(2, 2, 1)
@@ -161,7 +153,7 @@ class Tracker() :
         plt.subplot(2, 2, 2)
         plt.plot(self.df['timestamp'], self.df['centroid_y'])
         plt.title('Centroid Y over Time')
-        plt.ylim([0, w])  # Imposta i limiti dell'asse y
+        plt.ylim([0, w])
 
         plt.tight_layout()
         plt.show()

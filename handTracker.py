@@ -33,6 +33,7 @@ class handTracker():
                     self.mpDraw.draw_landmarks(image, handLms, self.mpHands.HAND_CONNECTIONS)
         return image
 
+    # this function compute the angle on axis X
     def calculate_rotation_angle_x(self, landmarks):
         # verify if there are sufficent number of keypoint
         if len(landmarks) < 18:
@@ -51,6 +52,7 @@ class handTracker():
 
         return angle_deg_x
 
+    # this function compute the rotation angle of the hand
     def calculate_rotation_angle_y(self, landmarks):
         # Verifica se i landmark necessari sono disponibili
         if len(landmarks) < 18:
@@ -70,8 +72,9 @@ class handTracker():
 
         return angle_deg_y
 
-    # list of all finger with x,y and the angles of hand
-    def positionFinder3(self, image, handNo=0, draw=True):
+    # draw the red point for the center of the hand
+    # save all data in a dataframe
+    def positionFinder(self, image, handNo=0, draw=True):
         lmlist = []
         if self.results.multi_hand_landmarks:
             # itero sulle mano rilevate
@@ -91,32 +94,29 @@ class handTracker():
                 centroid_y = sum_y // len(Hand.landmark)
                 if draw:
                     cv2.circle(image, (centroid_x, centroid_y), 15, (0, 0, 255),
-                               cv2.FILLED)  # Pallino rosso al centro della mano
+                               cv2.FILLED)  # red point on the center of the hand
                 lmlist.append(['center', centroid_x, centroid_y])
 
-                # Aggiungi la posizione corrente alla lista delle posizioni precedenti
                 self.previous_positions.append((centroid_x, centroid_y))
 
-                # Limita la lunghezza della lista delle posizioni precedenti a 10
+                # limit this list to have a limited line for previous position
                 if len(self.previous_positions) > 10:
                     self.previous_positions.pop(0)
 
-                # Disegna una linea tra ogni coppia di posizioni consecutive
                 for i in range(len(self.previous_positions) - 1):
                     cv2.line(image, self.previous_positions[i], self.previous_positions[i + 1], (255, 0, 0), 2)
 
-                # Calcola e aggiungi gli angoli alla lista
+                # compute angles
                 angle_x = self.calculate_rotation_angle_x(Hand.landmark)
                 angle_y = self.calculate_rotation_angle_y(Hand.landmark)
                 lmlist.append(['angle_x', angle_x])
                 lmlist.append(['angle_y', angle_y])
 
-                # Visualizza gli angoli di rotazione sull'immagine
                 cv2.putText(image, 'Angolo X: {:.2f}'.format(angle_x), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (255, 255, 255), 2, cv2.LINE_AA)
                 cv2.putText(image, 'Angolo Y: {:.2f}'.format(angle_y), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (255, 255, 255), 2, cv2.LINE_AA)
-                # Aggiungi le variabili al DataFrame con un timestamp
+                # update dataframe
                 new_data = pd.DataFrame({
                     'timestamp': [datetime.now()],
                     'angle_x': [angle_x],
@@ -127,12 +127,12 @@ class handTracker():
                 self.data = pd.concat([self.data, new_data], ignore_index=True)
         return lmlist
 
-    # list of all finger with x,y and the angles of hand
+    # control the mouse pointer with the finger
     def positionFinderMouse(self, image, handNo=0, draw=True):
         lmlist = []
         prev_centroid_x = 0
         prev_centroid_y = 0
-        prev_centroid_x, prev_centroid_y = 0, 0  # Coordinate precedenti dell'indice
+        prev_centroid_x, prev_centroid_y = 0, 0
         if self.results.multi_hand_landmarks:
             # itero sulle mano rilevate
             for handNo, Hand in enumerate(self.results.multi_hand_landmarks):
@@ -147,34 +147,29 @@ class handTracker():
                     if draw == True and id == 8:
                         cv2.circle(image, (cx, cy), 15, (255, 0, 255), cv2.FILLED)  # Pallino rosa sul indice
                         mouse_x, mouse_y = pyautogui.position()
-                        # Sposta il puntatore del mouse in base alla differenza calcolata
+                        # Move the pointer thought the entire screen
                         pyautogui.moveTo(1980 - cx * 3, cy * 2.20)
                 centroid_x = sum_x // len(Hand.landmark)
                 centroid_y = sum_y // len(Hand.landmark)
                 if draw:
                     cv2.circle(image, (centroid_x, centroid_y), 15, (0, 0, 255),
-                               cv2.FILLED)  # Pallino rosso al centro della mano
+                               cv2.FILLED)  # red point on the finger
 
                 lmlist.append(['center', centroid_x, centroid_y])
 
-                # Aggiungi la posizione corrente alla lista delle posizioni precedenti
                 self.previous_positions.append((centroid_x, centroid_y))
 
-                # Limita la lunghezza della lista delle posizioni precedenti a 10
                 if len(self.previous_positions) > 10:
                     self.previous_positions.pop(0)
 
-                # Disegna una linea tra ogni coppia di posizioni consecutive
                 for i in range(len(self.previous_positions) - 1):
                     cv2.line(image, self.previous_positions[i], self.previous_positions[i + 1], (255, 0, 0), 2)
 
-                # Calcola e aggiungi gli angoli alla lista
                 angle_x = self.calculate_rotation_angle_x(Hand.landmark)
                 angle_y = self.calculate_rotation_angle_y(Hand.landmark)
                 lmlist.append(['angle_x', angle_x])
                 lmlist.append(['angle_y', angle_y])
 
-                # Visualizza gli angoli di rotazione sull'immagine
                 cv2.putText(image, 'Angolo X: {:.2f}'.format(angle_x), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (255, 255, 255), 2, cv2.LINE_AA)
                 cv2.putText(image, 'Angolo Y: {:.2f}'.format(angle_y), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1,
@@ -190,7 +185,7 @@ class handTracker():
                 self.data = pd.concat([self.data, new_data], ignore_index=True)
         return lmlist
 
-    # list of all finger with x,y and the angles of hand
+    # control the mouse pointer and if the hand is open perform a click
     def positionFinderMouseClick(self, image, handNo=0, draw=True):
         lmlist = []
         h, w, _ = image.shape
@@ -200,7 +195,7 @@ class handTracker():
         prev_centroid_y = 0
         prev_centroid_x, prev_centroid_y = 0, 0  # Coordinate precedenti dell'indice
         if self.results.multi_hand_landmarks:
-            # itero sulle mano rilevate
+            # iteration on the detected hands
             for handNo, Hand in enumerate(self.results.multi_hand_landmarks):
                 sum_x = 0
                 sum_y = 0
@@ -214,39 +209,32 @@ class handTracker():
                         cv2.circle(image, (cx, cy), 15, (255, 0, 255), cv2.FILLED)  # Pallino rosa sul indice
                         mouse_x, mouse_y = pyautogui.position()
 
-                        # Sposta il puntatore del mouse in base alla differenza calcolata
                         pyautogui.moveTo(1980 - cx * 3, cy * 2.20)
                 centroid_x = sum_x // len(Hand.landmark)
                 centroid_y = sum_y // len(Hand.landmark)
                 if draw:
                     cv2.circle(image, (centroid_x, centroid_y), 15, (0, 0, 255),
-                               cv2.FILLED)  # Pallino rosso al centro della mano
+                               cv2.FILLED)
 
                 lmlist.append(['center', centroid_x, centroid_y])
 
-                # Aggiungi la posizione corrente alla lista delle posizioni precedenti
                 self.previous_positions.append((centroid_x, centroid_y))
 
-                # Limita la lunghezza della lista delle posizioni precedenti a 10
                 if len(self.previous_positions) > 10:
                     self.previous_positions.pop(0)
 
-                # Disegna una linea tra ogni coppia di posizioni consecutive
                 for i in range(len(self.previous_positions) - 1):
                     cv2.line(image, self.previous_positions[i], self.previous_positions[i + 1], (255, 0, 0), 2)
 
-                # Calcola e aggiungi gli angoli alla lista
                 angle_x = self.calculate_rotation_angle_x(Hand.landmark)
                 angle_y = self.calculate_rotation_angle_y(Hand.landmark)
                 lmlist.append(['angle_x', angle_x])
                 lmlist.append(['angle_y', angle_y])
 
-                # Visualizza gli angoli di rotazione sull'immagine
                 cv2.putText(image, 'Angolo X: {:.2f}'.format(angle_x), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (255, 255, 255), 2, cv2.LINE_AA)
                 cv2.putText(image, 'Angolo Y: {:.2f}'.format(angle_y), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (255, 255, 255), 2, cv2.LINE_AA)
-                # Aggiungi le variabili al DataFrame con un timestamp
                 new_data = pd.DataFrame({
                     'timestamp': [datetime.now()],
                     'angle_x': [angle_x],
@@ -256,64 +244,58 @@ class handTracker():
                 })
                 self.data = pd.concat([self.data, new_data], ignore_index=True)
 
-                # Calcola la distanza tra le punte delle dita e il centro della mano
                 distances = []
                 for item in lmlist:
-                    if len(item) == 3:  # Se l'elemento è una tripla
+                    if len(item) == 3:
                         id, cx, cy = item
-                        if id in [4, 12, 16, 20]:  # Punte delle dita
+                        if id in [4, 12, 16, 20]:
                             distance = ((cx - centroid_x) ** 2 + (cy - centroid_y) ** 2) ** 0.5
                             distances.append(distance)
 
-                # Soglia per determinare se una dita è chiusa o aperta
                 threshold = 60
                 closed_fingers = [d > threshold for d in distances]
 
-                # Se tutte le dita tranne l'indice (il secondo elemento della lista) sono aperte
                 if all(closed for i, closed in enumerate(closed_fingers) if i == 1):
                     cv2.putText(image, 'OPEN', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                     #pyautogui.click()
 
-        #return lmlist
 
     def plot_data(self):
         h = 480
         w = 640
 
-        # Dopo aver raccolto i dati, traccia i grafici
         plt.figure(figsize=(12, 8))
 
         plt.subplot(2, 2, 1)
         plt.plot(self.data['timestamp'], self.data['angle_x'])
         plt.title('Angle X over Time')
-        plt.ylim([0, 360])  # Imposta i limiti dell'asse y
+        plt.ylim([0, 360])
 
         plt.subplot(2, 2, 2)
         plt.plot(self.data['timestamp'], self.data['angle_y'])
         plt.title('Angle Y over Time')
-        plt.ylim([0, 360])  # Imposta i limiti dell'asse y
+        plt.ylim([0, 360])
 
         plt.subplot(2, 2, 3)
         plt.plot(self.data['timestamp'], self.data['centroid_x'])
         plt.title('Centroid X over Time')
-        plt.ylim([0, h])  # Imposta i limiti dell'asse y
+        plt.ylim([0, h])
 
         plt.subplot(2, 2, 4)
         plt.plot(self.data['timestamp'], self.data['centroid_y'])
         plt.title('Centroid Y over Time')
-        plt.ylim([0, w])  # Imposta i limiti dell'asse y
+        plt.ylim([0, w])
 
         plt.tight_layout()
         plt.show()
 
+    # plot smoothed to delete the high frequency noise
     def smooth_and_plot(self):
         h = 480
         w = 640
-        # Definisci la dimensione della finestra e la deviazione standard per la gaussiana
         window_size = 5
         std_dev = 0.5
 
-        # Crea un nuovo dataframe con le colonne smoothed
         smooth_data = pd.DataFrame()
         smooth_data['timestamp'] = self.data['timestamp']
         smooth_data['angle_x_smooth'] = self.data['angle_x'].rolling(window=window_size, win_type='gaussian',
@@ -324,28 +306,27 @@ class handTracker():
                                                                            center=True).mean(std=std_dev)
         smooth_data['centroid_y_smooth'] = self.data['centroid_y'].rolling(window=window_size, win_type='gaussian',
                                                                            center=True).mean(std=std_dev)
-        # Dopo aver raccolto i dati, traccia i grafici
         plt.figure(figsize=(12, 8))
 
         plt.subplot(2, 2, 1)
         plt.plot(smooth_data['timestamp'], smooth_data['angle_x_smooth'])
         plt.title('Angle X over Time')
-        plt.ylim([0, 360])  # Imposta i limiti dell'asse y
+        plt.ylim([0, 360])
 
         plt.subplot(2, 2, 2)
         plt.plot(smooth_data['timestamp'], smooth_data['angle_y_smooth'])
         plt.title('Angle Y over Time')
-        plt.ylim([0, 360])  # Imposta i limiti dell'asse y
+        plt.ylim([0, 360])
 
         plt.subplot(2, 2, 3)
         plt.plot(smooth_data['timestamp'], smooth_data['centroid_x_smooth'])
         plt.title('Centroid X over Time')
-        plt.ylim([0, h])  # Imposta i limiti dell'asse y
+        plt.ylim([0, h])
 
         plt.subplot(2, 2, 4)
         plt.plot(smooth_data['timestamp'], smooth_data['centroid_y_smooth'])
         plt.title('Centroid Y over Time')
-        plt.ylim([0, w])  # Imposta i limiti dell'asse y
+        plt.ylim([0, w])
 
         plt.tight_layout()
         plt.show()

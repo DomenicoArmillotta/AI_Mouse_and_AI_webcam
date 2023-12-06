@@ -50,7 +50,7 @@ def main_finger():
 
         cv2.imshow("Video", image)
         image.flags.writeable = False
-        if cv2.waitKey(1) & 0xFF == ord('s'):  # Se il tasto 's' viene premuto
+        if cv2.waitKey(1) & 0xFF == ord('s'):  # Press 'S' to stop
             break  # Interrompe il ciclo while
 
     cap.release()
@@ -89,7 +89,7 @@ def main_webcam():
         image = detector.find_faces_clown(image)
         cv2.imshow("Video", image)
         image.flags.writeable = False
-        if cv2.waitKey(1) & 0xFF == ord('s'):  # Se il tasto 's' viene premuto
+        if cv2.waitKey(1) & 0xFF == ord('s'):
             break
 
     cap.release()

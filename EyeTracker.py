@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import pyautogui
 from scipy.spatial import distance
 import time
 
@@ -33,13 +34,18 @@ class EyeTracker:
                 ear_left = self.calculate_ear(face_landmarks, [362, 385, 387, 263, 373, 380])
                 ear_right = self.calculate_ear(face_landmarks, [33, 160, 158, 133, 153, 144])
 
-                # Aggiungi il tuo valore di soglia qui
+                # trigger if both eye are closed
                 threshold = 0.35
+                if (ear_left < threshold) and (ear_right < threshold) :
+                    cv2.putText(image, 'Left', (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    cv2.putText(image, 'Right', (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    pyautogui.click()
                 if ear_left < threshold:
                     cv2.putText(image, 'Left', (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 if ear_right < threshold:
                     cv2.putText(image, 'Right', (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+    # metric to understand if the eye is closed based on 6 point for each eye
     def calculate_ear(self, landmarks, eye_indices):
         p1, p2, p3, p4, p5, p6 = [landmarks.landmark[i] for i in eye_indices]
         ear = (distance.euclidean((p2.x, p2.y), (p6.x, p6.y)) +
@@ -47,12 +53,14 @@ class EyeTracker:
                       2 * distance.euclidean((p1.x, p1.y), (p4.x, p4.y)))
         return ear
 
+    # update dataframe for future plot
     def update_dataframe(self, ear_left, ear_right):
         new_df = pd.DataFrame({'timestamp': [pd.Timestamp.now()],
                                'ear_left': [ear_left],
                                'ear_right': [ear_right]})
         self.df = pd.concat([self.df, new_df], ignore_index=True)
 
+    # plot the data logged in a dataframe
     def plot_ear(self):
         plt.plot(self.df['timestamp'], self.df['ear_left'], label='Left EAR')
         plt.plot(self.df['timestamp'], self.df['ear_right'], label='Right EAR')
