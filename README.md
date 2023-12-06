@@ -29,6 +29,7 @@ It does not work perfectly when wearing glasses due to reflections. Additionally
 
 ## Merging
 These two hand and blink detection techniques have been integrated, and the computational load has been reduced by eliminating unnecessary features, such as calculating the hand rotation angle. In a demonstrative video, it is evident that the integration works effectively and is usable, performing at a high frames-per-second (fps) rate.
+![Final implementation](img/merged.png)
 
 
 # Second Part : dinamic Webcam
