@@ -3,6 +3,7 @@ from EyeTracker import EyeTracker
 from handTracker import handTracker
 from Tracker import Tracker
 from CameraMove import CameraMove
+from PianoHand import PianoHand
 
 
 def main_eye():
@@ -83,9 +84,10 @@ def main_webcam():
 
     while True:
         success, image = cap.read()
-        #image = detector.find_faces_original(image)
+        # image = detector.find_faces_original(image)
+        image = detector.find_faces_laser(image)
         # image = detector.find_faces_black(image)
-        image = detector.find_faces_segmented(image)
+        #image = detector.find_faces_segmented(image)
         # image = detector.find_faces_clown(image)
         cv2.imshow("Video", image)
         image.flags.writeable = False
@@ -95,12 +97,34 @@ def main_webcam():
     cap.release()
     cv2.destroyAllWindows()
 
+
+def main_piano_hand():
+    cap = cv2.VideoCapture(0)
+    piano_hand = PianoHand()
+
+    while True:
+        success, image = cap.read()
+
+        # Rileva le mani e disegna il piano
+        piano_hand.detect_hands(image)
+
+        # Visualizza l'immagine con il piano sovrapposto
+        cv2.imshow("Piano Hand", image)
+
+        if cv2.waitKey(1) & 0xFF == ord('s'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
 if __name__ == "__main__":
+    # main_piano_hand()
     # uncomment the favourite main
     # hand tracking + eye blink tracking
-    # main()
+    #main()
     # only eye tracking with plot
     # main_eye()
     # only hand tracking with angle detection enabled
-    # main_finger()
+    #main_finger()
     main_webcam()

@@ -2,10 +2,15 @@ import pyautogui
 import cv2
 import mediapipe as mp
 import numpy as np
+import pyfirmata
+import numpy as np
+
+import time
 
 import math
 import pandas as pd
 import matplotlib.pyplot as plt
+import serial
 from scipy.spatial import distance
 
 from datetime import datetime
@@ -16,6 +21,10 @@ class CameraMove:
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_face_mesh = mp.solutions.face_mesh
         self.face_mesh = self.mp_face_mesh.FaceMesh()
+        port = 'COM4'  # Windows
+        self.board = pyfirmata.Arduino(port)  # Initialize the communication with the Arduino card
+        self.ServoPin = self.board.get_pin('d:8:s')
+        self.LaserPin = self.board.get_pin('d:9:s')
 
     def find_faces_original(self, img):
         h, w, _ = img.shape
@@ -146,10 +155,49 @@ class CameraMove:
 
         return face_img_resized
 
+    def rotate_servo(self , angle):
+        self.ServoPin.write(int(angle))
 
 
+    import numpy as np
 
+    def find_faces_laser(self, img, distance=50):
+        h, w, _ = img.shape
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        results = self.face_mesh.process(img_rgb)
+        angle = 0
+        if results.multi_face_landmarks is not None:
+            for face_landmarks in results.multi_face_landmarks:
+                min_x, min_y = w, h
+                max_x, max_y = 0, 0
 
+                for id, lm in enumerate(face_landmarks.landmark):
+                    x, y = int(lm.x * w), int(lm.y * h)
+                    min_x, min_y = min(x, min_x), min(y, min_y)
+                    max_x, max_y = max(x, max_x), max(y, max_y)
 
+                # Increasing rect border
+                min_x = max(0, min_x - int(0.05 * w))
+                max_x = min(w, max_x + int(0.05 * w))
+                min_y = max(0, min_y - int(0.1 * h))
+                max_y = min(h, max_y + int(0.1 * h))
 
+                # Calculate the center of the face
+                center_x, center_y = (max_x + min_x) // 2, (max_y + min_y) // 2
 
+                # Calculate the angle
+                dx, dy = center_x - w // 2, center_y - h // 2
+                angle = math.atan2(dy, dx) * 180 / math.pi
+
+                # Adjust the angle based on the distance to the object
+                angle *= distance / 70
+
+                cv2.rectangle(img, (min_x, min_y), (max_x, max_y), (0, 0, 255), 2)
+                #self.mp_drawing.draw_landmarks(img, face_landmarks, self.mp_face_mesh.FACEMESH_TESSELATION,
+                 #                              self.mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1,
+                  #                                                         circle_radius=1),
+                  #                             self.mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=1,
+                  #                                                         circle_radius=1))
+            self.rotate_servo(angle)
+
+        return img

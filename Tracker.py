@@ -123,6 +123,10 @@ class Tracker() :
 
                 # Threshold for eye blink detection
                 threshold = 0.33
+                if (ear_left < threshold) and (ear_right < threshold) :
+                    cv2.putText(image, 'Left', (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    cv2.putText(image, 'Right', (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    # pyautogui.click()
                 if ear_left < threshold:
                     cv2.putText(image, 'Left', (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 if ear_right < threshold:
