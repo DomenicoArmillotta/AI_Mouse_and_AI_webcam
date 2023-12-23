@@ -51,6 +51,10 @@ This approach gives the illusion that the camera is dynamically following the pe
 
 ![AI webcam](img/locked.png)
 
+# Third section : laser with arduino servo pointing my face
+## Automatic face lock and pointing 
+Using the library to identify the face, an arduino was connected with a servo and a laser, which based on the detected movements of my face, moved the servo and aimed the laser at my face. The connection with the arduino was done with the pyFirmata library , very convenient to use and fast. The face detection and tracking with Mediapipe and OpenCv. 
+![AI laser](img/servo.jpg)
 
 
 
