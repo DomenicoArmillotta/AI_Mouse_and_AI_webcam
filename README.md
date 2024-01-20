@@ -65,6 +65,14 @@ processing was implemented through Opencv via ROS nodes used in robotics.
 - NODE 2 : subscribe to the output topic of Node 1 and use the OpenCV 
 functionality from to process the received images. The processed 
 images should be published on a third ROS 2 topic
+![Node 1](img/webcam_pub.png)
+![Node 2](img/nod_sub_modifier.png)
+![Processed image received](img/sub1.png)
+![Package organization](img/package_iit.png)
+
+
+
+
 
 
 
