@@ -57,5 +57,22 @@ Using the library to identify the face, an arduino was connected with a servo an
 ![AI laser](img/servo.jpg)
 
 
+# Fourth part : ROS implementation
+## Implementation 
+processing was implemented through Opencv via ROS nodes used in robotics.
+2 nodes were created : 
+- NODE 1 : subscribe to an image topic, resize the image to a 300x300  and publish it on an output topic.
+- NODE 2 : subscribe to the output topic of Node 1 and use the OpenCV 
+functionality from to process the received images. The processed 
+images should be published on a third ROS 2 topic
+
+
+
+## Bash script 
+bash script that checks if the camera is connected. If so, the script launches the 
+previous executables/launch files, otherwise prints out a warning msg.
+
+
+
 
 
